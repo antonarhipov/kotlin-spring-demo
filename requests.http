@@ -24,3 +24,6 @@ Content-Type: application/json
 
 ### get all the messages
 GET http://localhost:8080/
+
+### get message by id
+GET http://localhost:8080/{{id}}
