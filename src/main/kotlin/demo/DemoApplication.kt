@@ -2,8 +2,9 @@ package demo
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
-import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.jdbc.core.query
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
+import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Service
 import org.springframework.web.bind.annotation.*
 import java.util.*
@@ -30,22 +31,22 @@ class MessageResource(val service: MessageService) {
 
 }
 
-data class Message(val id: String?, val text: String)
+@Table("MESSAGES")
+data class Message(@Id val id: String?, val text: String)
 
 @Service
-class MessageService(val db: JdbcTemplate) {
+class MessageService(val db: MessageRepository) {
 
-    fun findMessages(): List<Message> = db.query("select * from messages") { rs, _ ->
-        Message(rs.getString("id"), rs.getString("text"))
-    }
+    fun findMessages(): List<Message> = db.findAll().toList()
 
-    fun findMessageById(id: String): List<Message> = db.query("select * from messages where id = ?", id) { rs, _ ->
-        Message(rs.getString("id"), rs.getString("text"))
-    }
+    fun findMessageById(id: String): List<Message> = db.findById(id).toList()
 
     fun save(message: Message) {
-        val id = message.id ?: UUID.randomUUID().toString()
-        db.update("insert into messages values ( ?, ? )", id, message.text)
+        db.save(message)
     }
 
+    fun <T : Any> Optional<out T>.toList(): List<T> =
+        if (isPresent) listOf(get()) else emptyList()
 }
+
+interface MessageRepository : CrudRepository<Message, String>
