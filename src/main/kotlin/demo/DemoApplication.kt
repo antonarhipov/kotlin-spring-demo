@@ -32,7 +32,7 @@ class MessageResource(val service: MessageService) {
 }
 
 @Table("MESSAGES")
-data class Message(@Id val id: String?, val text: String)
+data class Message(@Id var id: String?, val text: String)
 
 @Service
 class MessageService(val db: MessageRepository) {
