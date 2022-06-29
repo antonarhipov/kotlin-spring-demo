@@ -24,6 +24,20 @@ class MessageResource(val service: MessageService) {
     @GetMapping("/{id}")
     fun index(@PathVariable id: String): List<Message> = service.findMessageById(id)
 
+    @GetMapping("/groups")
+    fun groups(): Map<String, List<Message>> {
+        val messages = service.findMessages()
+        val groups = listOf("hello", "bye")
+
+        val map = messages.groupByTo(mutableMapOf()) { message ->
+            groups.firstOrNull {
+                message.text.contains(it, ignoreCase = true)
+            } ?: "other"
+        }
+
+        return map
+    }
+
     @PostMapping
     fun post(@RequestBody message: Message) {
         service.save(message)
